@@ -41,13 +41,15 @@ func (executor *Executor) ExecuteJob(jobInfo *common.JobExecuteStatus) {
 			result.StartTime = time.Now()
 			if sysType == "linux" {
 				cmd = exec.CommandContext(result.ExecuteInfo.CancelCtx, "/bin/sh", "-c", result.ExecuteInfo.Job.Command)
+				output, err := common.CleanCmd(result.ExecuteInfo.CancelCtx, cmd)
+				result.Output = output
+				result.Err = err
 			} else if sysType == "windows" {
 				cmd = exec.CommandContext(result.ExecuteInfo.CancelCtx, "Powershell", "-Command", result.ExecuteInfo.Job.Command)
+				output, err := cmd.CombinedOutput()
+				result.Output = output
+				result.Err = err
 			}
-			output, err := cmd.CombinedOutput()
-			result.Output = output
-			result.Err = err
-
 			result.EndTime = time.Now()
 		} else {
 			result.Err = locError
